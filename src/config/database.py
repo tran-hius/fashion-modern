@@ -16,3 +16,7 @@ engine = create_async_engine(
 )
 
 async_session_local = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+async def get_session():
+    async with async_session_local() as session:
+        yield session

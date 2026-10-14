@@ -16,8 +16,9 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    full_name: Mapped[str] = mapped_column(String(30))
+    full_name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     address: Mapped[Optional[str]]
-    phone_number: Mapped[Optional[int]]
+    phone_number: Mapped[Optional[str]]
     role: Mapped[Role] = mapped_column(SQLEnum(Role), default=Role.GUEST, nullable=False)
