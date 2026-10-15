@@ -16,7 +16,7 @@ class BaseRepository(ABC, Generic[T, ID]):
     async def get_all(self, skip: int = 0, limit: int = 10) -> list[T]:
             pass
     @abstractmethod
-    async def update(self, id: ID, data: T) -> T | None:
+    async def update(self, id: ID, data: T) -> bool:
         pass
     @abstractmethod
     async def delete(self, id: ID) -> bool:

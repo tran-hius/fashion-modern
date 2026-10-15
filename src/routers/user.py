@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config.database import get_session
 from src.services.user_service import UserService
 from src.repositories.user_repository import UserRepository
-from src.schemas.user import UserCreate, UserResponse, UserUpdate
+from src.schemas.user import UserCreate, UserResponse, UserUpdate, MessageResponse
 
 
 router = APIRouter(
@@ -66,10 +66,7 @@ async def update_user(id: int, data: UserUpdate, service: UserService = Depends(
             )
         raise
 
-@router.delete(
-    "/{id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT,)
 async def delete_user(
     id: int,
     service: UserService = Depends(get_user_service),
@@ -83,3 +80,35 @@ async def delete_user(
                 detail=str(e),
             )
         raise
+
+@router.patch("/{id}/block", response_model=MessageResponse)
+async def block_user(id: int, service: UserService = Depends(get_user_service)):
+    try:
+        await service.block_user(id)
+        return {"message": "Khóa user thành công"}
+    except ValueError as e:
+        if str(e) == "Không tìm thấy user":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e),
+            )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+@router.patch("/{id}/unblock", response_model=MessageResponse)
+async def unblock_user(id: int, service: UserService = Depends(get_user_service)):
+    try:
+        await service.unblock_user(id)
+        return {"message": "Mở khóa user thành công"}
+    except ValueError as e:
+        if str(e) == "Không tìm thấy user":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e),
+            )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )

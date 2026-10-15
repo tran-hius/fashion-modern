@@ -20,8 +20,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Fashion Shop API",
-    description="API hệ thống quản lý bán hàng thời trang",
+    title="Blog Cá Nhân Chia Sẻ Video Khóa Học API",
+    description="API hệ thống blog cá nhân chia sẻ video khóa học",
     version="1.0.0",
     lifespan=lifespan,
 )
