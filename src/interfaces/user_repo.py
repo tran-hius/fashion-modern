@@ -12,3 +12,6 @@ class UserRepositoryInterface(BaseRepository[User, int]):
     async def get_by_google_id(self, google_id: str) -> User | None:
         pass
 
+    @abstractmethod
+    async def get_by_username(self, username: str) -> User | None:
+        pass

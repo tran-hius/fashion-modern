@@ -1,21 +1,25 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from src.config.database import async_session_local, engine
+from src.config.settings import settings
 from src.models.user import Base
+from src.repositories.token_repository import TokenRepository
+from src.routers.auth import router as auth_router
 from src.routers.user import router as user_router
+from src.dependencies import get_current_user_id
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Khởi động: tự động tạo bảng nếu chưa tồn tại
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    async with async_session_local() as session:
+        await TokenRepository(session).delete_expired()
     yield
-    # Tắt server: giải phóng connection pool
     await engine.dispose()
 
 
@@ -26,16 +30,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Cấu hình CORS cho phép Frontend gọi API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Đăng ký các router
+
+app.include_router(auth_router)
+app.include_router(auth_router, prefix="/api/v1")
 app.include_router(user_router)
 
 
@@ -48,6 +53,14 @@ async def db_check():
             "status": "healthy",
             "database": result.scalar(),
         }
+
+
+@app.get("/auth-check", tags=["Health"], summary="Kiểm tra Access Token đăng nhập")
+async def auth_check(user_id: int = Depends(get_current_user_id)):
+    return {
+        "status": "authenticated",
+        "user_id": user_id,
+    }
 
 
 if __name__ == "__main__":

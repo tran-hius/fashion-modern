@@ -1,4 +1,3 @@
-# src/interfaces/token_repo.py
 from abc import ABC, abstractmethod
 from datetime import datetime
 from src.models.token import Token

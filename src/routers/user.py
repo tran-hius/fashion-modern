@@ -1,19 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query 
-from sqlalchemy.ext.asyncio import AsyncSession
-from src.config.database import get_session
-from src.services.user_service import UserService
-from src.repositories.user_repository import UserRepository
-from src.schemas.user import UserCreate, UserResponse, UserUpdate, MessageResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from src.dependencies import get_user_service
+from src.schemas.user import MessageResponse, UserCreate, UserResponse, UserUpdate
+from src.services.user_service import UserService
 
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
-
-def get_user_service(session: AsyncSession = Depends(get_session),) -> UserService:
-    user_repo = UserRepository(session)
-    return UserService(user_repo)
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

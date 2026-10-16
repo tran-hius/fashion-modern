@@ -35,30 +35,24 @@ class UserService:
         return await self.user_repo.create(new_user)
 
     async def update(self, id: int, data: UserUpdate) -> User:
-        # 1. Convert Pydantic Schema sang dict (chỉ lấy các field mà Client thực sự gửi lên)
         update_data = data.model_dump(exclude_unset=True)
 
-        # 2. Kiểm tra User có tồn tại không trước khi làm bất kỳ việc gì
         user = await self.user_repo.get_by_id(id)
         if not user:
             raise ValueError("Không tìm thấy user")
 
-        # Nếu client không truyền field nào để update (payload rỗng {})
         if not update_data:
             return user
 
-        # 3. Validation Logic: Kiểm tra trùng Email (chỉ chạy khi email mới khác email hiện tại)
         if "email" in update_data and update_data["email"] != user.email:
             existing = await self.user_repo.get_by_email(update_data["email"])
             if existing and existing.id != id:
                 raise ValueError("Email đã tồn tại")
 
-        # 4. Gọi Repo thực thi UPDATE xuống DB (không cần truyền allowed_fields nữa)
         is_updated = await self.user_repo.update(id=id, data=update_data)
         if not is_updated:
             raise ValueError("Cập nhật người dùng thất bại")
 
-        # 5. Trả về đối tượng User sau khi đã cập nhật thành công
         updated_user = await self.user_repo.get_by_id(id)
         return updated_user
 

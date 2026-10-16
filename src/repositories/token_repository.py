@@ -10,7 +10,8 @@ class TokenRepository(TokenRepositoryInterface):
 
     async def create(self, user_id, token_hash, expires_at):
         token = Token(user_id=user_id, refresh_token=token_hash,expires_at=expires_at)
-        await self.session.add(token)
+        self.session.add(token)
+        await self.session.commit()
         await self.session.refresh(token)
         return token
 
@@ -20,7 +21,7 @@ class TokenRepository(TokenRepositoryInterface):
         return result.scalar_one_or_none()
 
     async def revoke(self, token_id):
-        statement = update(Token).where(Token.token_id == token_id, Token.is_revoked.is_(False)).values(is_revoked=True)
+        statement = update(Token).where(Token.id == token_id, Token.is_revoked.is_(False)).values(is_revoked=True)
         result = await self.session.execute(statement)
         await self.session.commit()
         return result.rowcount > 0

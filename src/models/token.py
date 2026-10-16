@@ -6,7 +6,7 @@ from src.config.database import Base
 class Token(Base):
     __tablename__ = "token"
 
-    token_id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     refresh_token: Mapped[str] = mapped_column(String(500), unique=True, index=True)
     is_revoked: Mapped[bool] = mapped_column(default=False)

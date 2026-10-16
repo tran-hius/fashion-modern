@@ -28,6 +28,11 @@ class UserRepository(UserRepositoryInterface):
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 
+    async def get_by_username(self, username: str) -> User | None:
+        statement = select(User).where(User.username == username)
+        result = await self.session.execute(statement)
+        return result.scalar_one_or_none()
+
     async def get_all(self, skip: int = 0, limit: int = 10 ) -> list[User]:
         statement = select(User).order_by(User.id).offset(skip).limit(limit)
         result = await self.session.scalars(statement)

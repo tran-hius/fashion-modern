@@ -58,3 +58,15 @@ class UserUpdate(BaseModel):
         str_strip_whitespace=True,
         extra="forbid",
     )
+
+
+class UserMeResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    full_name: str
+    username: str
+    email: str
+    avatar_url: str | None
+    role: str
+    is_verify: bool
